@@ -20,19 +20,21 @@ IntelliJ 으로 실행 - 통합 테스트 할 때
 - Settings - Build, Execution, Deployment - Build Tools - Gradle - 중간의 Build and run using 을 IntelliJ IDEA 로 변경
 - Settings - Build, Execution, Deployment - Build Tools - Gradle - 하단의 Gradle JVM 을 Amazon Corretto 17.0.11 로 변경
 - Settings - Build, Execution, Deployment - Compiler - Annotation Processors - 상단의 Enable annotation processing 체크
-6. application.yaml 의 ros.websocket.uri 확인
+6. Notion 최하단의 Plus 파트의 내용 참조해서 application.yaml, prompt.yaml, application-test.yaml 을 llmServer 에 추가
+7. application.yaml 의 ros.websocket.uri 확인
 - 실제 ROS 서버와 통신할 경우, 'ws://localhost:9090' 선택
-- SimpleWebSocket 을 이용한 테스트의 경우, 'ws://localhost:9090/ros' 선택
-7. SimpleWebSocket 을 IntelliJ 로 '새 창' 에서 열고, 5번의 설정 진행
-8. SimpleWebSocket 먼저 실행
-9. llmService 실행
-10. 'https://hoppscotch.io/realtime/websocket' 에서 테스트 진행
+- SimpleWebSocketServer 을 이용한 테스트의 경우, 'ws://localhost:9090/ros' 선택
+8. SimpleWebSocketServer 을 IntelliJ 로 '새 창' 에서 열고, 5번의 설정 진행
+9. Notion 최하단의 Plus 파트의 내용 참조해서 application.yaml 을 SimpleWebSocketServer 에 추가
+10. SimpleWebSocketServer 먼저 실행
+11. llmService 실행
+12. 'https://hoppscotch.io/realtime/websocket' 에서 테스트 진행
 - 'ws://localhost:8080/whisper' 와 연결
 - 메시지 타입을 JSON 변경
 - 정해진 형식의 JSON 메시지를 작성
 - 보내기 버튼 클릭
 - 조금 기다린 뒤, SimpleWebSocket 에 발생하는 로그 확인
-11. 주의점
+13. 주의점
 - 현재는 NAVIGATION 기능만이 제공된다. 따라서, SimpleWebSocket 에서 로그를 보고 싶다면 NAVIGATION 이 되도록 user prompt 제공
 - CHAT, ERROR 가 발생하면 llmService 내부에서 그냥 먹어버리도록 설계했다. (이후에 TTS 연계할 수 있도록 임시 조치) - SttMessageHandler 참조
 - /whisper 의 요청 status 가 ERROR 인 경우도, 일단은 내부에서 먹도록 설계했다. - SttMessageHandler 참조
