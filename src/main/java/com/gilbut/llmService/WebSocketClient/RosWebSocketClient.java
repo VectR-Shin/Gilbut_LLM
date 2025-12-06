@@ -1,0 +1,67 @@
+package com.gilbut.llmService.WebSocketClient;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
+import java.net.URI;
+import java.util.function.Consumer;
+
+/*
+ * ROS 에 응답을 보내기 위한 '웹 소켓 클라이언트'
+ * ROS 와의 통신을 위해 'Java-WebSocket' dependency 를 사용
+ */
+
+@Slf4j
+public class RosWebSocketClient extends WebSocketClient implements RosClient {
+
+    private Runnable onOpenCallback = () -> {};
+    private Runnable onCloseCallback = () -> {};
+    private Consumer<Exception> onErrorCallback = ex -> {};
+
+    public RosWebSocketClient(URI serverUri) throws Exception {
+        super(serverUri);
+    }
+
+    @Override
+    public void onOpen(ServerHandshake handshakedata) {
+        log.info("[ROS - ROSWebSocketClient] 연결 완료");
+        onOpenCallback.run();
+    }
+
+    @Override
+    public void onMessage(String message) {
+        log.info("[ROS - ROSWebSocketClient onMessage] 로부터 수신한 메시지: {}", message);
+    }
+
+    @Override
+    public void onClose(int code, String reason, boolean remote) {
+        // reason 이 UTF-8 로 오지 않으면 로그가 깨지는 현상이 있음. 주의
+        log.info("[ROS - ROSWebSocketClient onClose] 연결 종료: {}", reason);
+        onCloseCallback.run();
+    }
+
+    @Override
+    public void onError(Exception ex) {
+        log.error("[ROS - ROSWebSocketClient onError] 연결 오류: {}", ex.getMessage());
+        ex.printStackTrace();
+        onErrorCallback.accept(ex);
+    }
+
+    // 이벤트 등록 메서드
+    @Override
+    public void setOnOpen(Runnable callback) {
+        this.onOpenCallback = callback;
+    }
+
+    @Override
+    public void setOnClose(Runnable callback) {
+        this.onCloseCallback = callback;
+    }
+
+    @Override
+    public void setOnError(Consumer<Exception> callback) {
+        this.onErrorCallback = callback;
+    }
+}

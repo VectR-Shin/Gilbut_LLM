@@ -1,18 +1,18 @@
 package com.gilbut.llmService.Service;
 
-import com.gilbut.llmService.DTO.LLMMessageDTO;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gilbut.llmService.DTO.LlmMessageDTO;
 import com.google.genai.Client;
-import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 
-import java.util.List;
+import java.util.Optional;
+
 
 /*
  * Gemini Client(GeminiConfig)를 이용하여 요청을 보내고, 응답을 받는 서비스.
@@ -31,38 +31,55 @@ public class GeminiService {
     private final Client geminiClient;
 
     @Value("${gemini.version}")
-    private String GeminiVersion;
+    private String geminiVersion;
 
     // 시스템 프롬프트
     @Value("${gemini.prompt}")
     private String systemPrompt;
 
     // 파라미터로 들어오는 프롬프트는 '사용자 프롬프트' 이다.
-    public LLMMessageDTO ask(String prompt) {
-        // Gemini 의 응답을 JSON 타입으로 지정
-        GenerateContentConfig config = GenerateContentConfig.builder()
-                .responseMimeType("application/json")
-                .build();
-
-        // 시스템 프롬프트 + 사용자 프롬프트
-        String finalPrompt = systemPrompt + "\n\n" + prompt;
-
-        // prompt 에 대한 Gemini 의 응답 받기
-        GenerateContentResponse response =
-                geminiClient.models.generateContent(
-                        GeminiVersion,
-                        finalPrompt,
-                        config
-                );
-
-        String jsonString = response.text();
-
+    public Optional<LlmMessageDTO> ask(String prompt) {
         try {
-            // JSON String -> DTO 매핑
-            return objectMapper.readValue(jsonString, LLMMessageDTO.class);
+            // ObjectMapper 를 사용해서 사용자 요청의 특수 문자 등을 안전하게 처리
+            String safeUserPrompt = objectMapper.writeValueAsString(prompt);
+
+            // 시스템 프롬프트에 사용자 요청을 삽입
+            String finalPrompt = systemPrompt.replace("{userPrompt}", safeUserPrompt);
+
+            // Gemini 의 응답을 JSON 타입으로 지정
+            GenerateContentConfig config = GenerateContentConfig.builder()
+                    .responseMimeType("application/json")
+                    .build();
+
+            // Gemini API 호출
+            GenerateContentResponse response =
+                    geminiClient.models.generateContent(
+                            geminiVersion,
+                            finalPrompt,
+                            config
+                    );
+
+            String jsonString = response.text();
+
+            // JSON String -> DTO 매핑 (예상치 못한 필드 무시)
+            LlmMessageDTO returnDTO = objectMapper.readValue(jsonString, LlmMessageDTO.class);
+            return Optional.ofNullable(returnDTO);
+
         } catch (JacksonException e) {
-            log.error("[LLM - GeminiService] JSON 파싱 실패. Gemini 응답: {}", jsonString, e);
-            return null;
+            log.error("[LLM - GeminiService] JSON 파싱 실패. 오류 메시지: {}", e.getMessage(), e);
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("[LLM - GeminiService] Gemini API 호출 실패", e);
+            return Optional.empty();
         }
+    }
+
+    // 테스트용 메서드들
+    public void setGeminiVersion(String geminiVersion) {
+        this.geminiVersion = geminiVersion;
+    }
+
+    public void setSystemPrompt(String systemPrompt) {
+        this.systemPrompt = systemPrompt;
     }
 }

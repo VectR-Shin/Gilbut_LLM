@@ -1,9 +1,10 @@
-package com.gilbut.llmService.Controller;
+package com.gilbut.llmService.Handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.LLMMessageDTO;
-import com.gilbut.llmService.DTO.ROSMessageDTO;
-import com.gilbut.llmService.DTO.STTMessageDTO;
+import com.gilbut.llmService.DTO.DTOStatus.SttStatusType;
+import com.gilbut.llmService.DTO.LlmMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.SttMessageDTO;
 import com.gilbut.llmService.Service.GeminiService;
 import com.gilbut.llmService.Service.LocationService;
 import com.gilbut.llmService.Service.RosService;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.util.Optional;
 
 /*
  * 다음과 같은 기능을 수행하는 핸들러
@@ -48,14 +51,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class STTMessageHandler extends TextWebSocketHandler {
+public class SttMessageHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final RosService rosService;
     private final GeminiService geminiService;
     private final LocationService locationService;
-
-    @Value("${gemini.prompt}")
-    private String prompt;
 
     @Override
     public void handleTextMessage(@NonNull WebSocketSession session,
@@ -63,7 +63,7 @@ public class STTMessageHandler extends TextWebSocketHandler {
         try {
             // STT 서버 메시지 파싱
             String payload = message.getPayload();
-            STTMessageDTO msg = objectMapper.readValue(payload, STTMessageDTO.class);
+            SttMessageDTO msg = objectMapper.readValue(payload, SttMessageDTO.class);
 
             // 확인용 로그 출력
             log.info("==============================");
@@ -73,17 +73,31 @@ public class STTMessageHandler extends TextWebSocketHandler {
             log.info("time: {}", msg.getTime());
             log.info("==============================");
 
+            // STT 서버로부터 ERROR 가 온 경우
+            if (msg.getStatus() == SttStatusType.ERROR) {
+                log.info("[STT - SttMessageHandler] STT 서버의 ERROR 요청 수신");
+                return;
+            }
+
+            String userPrompt = msg.getText();
+
             // LLM 처리
-            LLMMessageDTO llmMessageDTO = geminiService.ask(prompt);
+            Optional<LlmMessageDTO> llmMsgOptional = geminiService.ask(userPrompt);
 
-            // geminiService.ask 가 정상 동작했다면
-            if (llmMessageDTO != null) {
+            // geminiService.ask() 가 정상 동작했다면
+            if (llmMsgOptional.isPresent()) {
+                LlmMessageDTO llmMessageDTO = llmMsgOptional.get();
+
                 // llmMessageDTO 의 정보를 기반으로 DB 검색 및 ROSMessageDTO 에 파싱
-                ROSMessageDTO rosMessageDTO = locationService.getROSMessageDTO(llmMessageDTO);
+                RosMessageDTO rosMessageDTO = locationService.getROSMessageDTO(llmMessageDTO);
 
-                // ROS 로 응답
-                // DB 탐색에 이상이 있는 경우, status.ERROR
-                rosService.send(rosMessageDTO);
+                // 프로토타입에서는 'NAVIGATION' 타입만 기능을 제공한다. (CHAT, ERROR 는 null 을 반환하도록 했다)
+                if (rosMessageDTO != null) {
+                    // ROS 로 응답
+                    // DB 탐색에 이상이 있는 경우, status.ERROR
+                    rosService.send(rosMessageDTO);
+                }
+
                 return;
             }
 
@@ -100,30 +114,3 @@ public class STTMessageHandler extends TextWebSocketHandler {
 
     }
 }
-
-
-/*
-
-할 일
-
-구현 일정
-완료. 내장 DB 추가
-완료. Domain 의 @Entity 추가
-완료. Domain 의 Repository 추가
-완료. LLMMessageDTO 및 관련된 것들 변경
-완료. ROSMessageDTO 및 관련된 것들 변경 (Double 의 경우, 래퍼 클래스 쓰기)
-완료. Repository 를 사용하는 Service
-완료. 사전 Prompt 지정하기 (노션 참조)
-8. github 올리기
-
-테스트 일정
-1. DB 에 테스트 데이터 넣기
-2. Repository 테스트
-3. Service 테스트
-4. Handler 테스트 (통합 테스트)
-5. 우분투 환경 테스트
-
-
-+ 나중에 DB 에 지정된 값 미리 넣어두기
-
- */

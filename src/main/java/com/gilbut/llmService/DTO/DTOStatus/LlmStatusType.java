@@ -8,7 +8,7 @@ package com.gilbut.llmService.DTO.DTOStatus;
  * ERROR: 애매한 경우
  *
  */
-public enum LLMStatusType {
+public enum LlmStatusType {
     NAVIGATION,
     CHAT,
     ERROR

@@ -1,6 +1,6 @@
-package com.gilbut.llmService.Configuration;
+package com.gilbut.llmService.Config;
 
-import com.gilbut.llmService.Controller.STTMessageHandler;
+import com.gilbut.llmService.Handler.SttMessageHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -16,9 +16,9 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
-    private final STTMessageHandler handler;
+    private final SttMessageHandler handler;
 
-    public WebSocketConfig(STTMessageHandler handler) {
+    public WebSocketConfig(SttMessageHandler handler) {
         this.handler = handler;
     }
 

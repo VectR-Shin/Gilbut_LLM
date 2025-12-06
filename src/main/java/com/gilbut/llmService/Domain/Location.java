@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /*
- * 위치 정보를 기록하는
+ * 위치 정보를 기록하는 엔티티
+ * 인공키 사용
+ * 장소명은 유니크하게 설정
  */
 
 @Entity

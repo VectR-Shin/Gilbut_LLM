@@ -18,14 +18,15 @@ public class LocationRepository {
     private EntityManager em;
 
     // 저장 및 업데이트
-    // Id 가 null 이라면 저장, 존재한다면 업데이트
+    // ID 가 null 인 경우만 동작한다. (비영속 상태만 저장)
+    // 이외의 경우에 대해서는 Dirty Checking 사용해서 업데이트하기!
     public Location save(Location location) {
         if (location.getId() == null) {
             em.persist(location);
             return location;
-        } else {
-            return em.merge(location);
         }
+
+        return location;
     }
 
     // Location 을 인공 PK 기반으로 검색 및 반환

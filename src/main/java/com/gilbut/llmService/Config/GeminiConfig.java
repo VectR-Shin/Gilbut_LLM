@@ -1,4 +1,4 @@
-package com.gilbut.llmService.Configuration;
+package com.gilbut.llmService.Config;
 
 import com.google.genai.Client;
 
@@ -14,9 +14,6 @@ import org.springframework.context.annotation.Configuration;
 public class GeminiConfig {
     @Value("${gemini.api-key}")
     private String apiKey;
-
-    @Value("${gemini.prompt}")
-    private String prompt;
 
     @Bean
     public Client geminiClient() {

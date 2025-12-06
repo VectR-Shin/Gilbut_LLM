@@ -1,6 +1,6 @@
 package com.gilbut.llmService.DTO.DTOStatus;
 
-public enum STTStatusType {
+public enum SttStatusType {
     SUCCESS,
     ERROR
 }

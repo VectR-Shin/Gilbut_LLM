@@ -1,0 +1,5 @@
+# 테스트용 uri
+# SimpleRosServerApplication 과 함께 사용
+ros:
+  websocket:
+    uri: ws://localhost:9090/ros

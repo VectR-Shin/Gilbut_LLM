@@ -1,12 +1,12 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.0'
+	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.gilbut'
 version = '0.0.1-SNAPSHOT'
-description = '음성 스트림 데이터를 STT Server 를 경유해 텍스트로 변환한 뒤, Gemini API 에 전달하여 얻은 결과를 다시 반환하는 서버'
+description = 'STT 서버로부터 음성을 변환한 텍스트 메시지를 전달 받고, 이 메시지를 ROS 로 전송하는 서버'
 
 java {
 	toolchain {
@@ -30,7 +30,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// 임시 제거 implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.java-websocket:Java-WebSocket:1.5.6'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
@@ -38,18 +37,20 @@ dependencies {
 
 	runtimeOnly 'com.h2database:h2'// h2 Embedded DB
 	compileOnly 'org.projectlombok:lombok'
-	// runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	// 임시 제거 testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-websocket-test'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-web'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+	//testImplementation 'org.springframework.boot:spring-boot-starter-websocket-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
