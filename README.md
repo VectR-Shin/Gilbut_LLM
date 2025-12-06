@@ -21,6 +21,9 @@ IntelliJ 으로 실행 - 통합 테스트 할 때
 - Settings - Build, Execution, Deployment - Build Tools - Gradle - 하단의 Gradle JVM 을 Amazon Corretto 17.0.11 로 변경
 - Settings - Build, Execution, Deployment - Compiler - Annotation Processors - 상단의 Enable annotation processing 체크
 6. Notion 최하단의 Plus 파트의 내용 참조해서 application.yaml, prompt.yaml, application-test.yaml 을 llmServer 에 추가
+- 만약 .yaml 파일이 이미 존재한다면, 추가로 넣을 필요는 없다.
+- test.resources 가 없다면, 새로 만들고 넣으면 된다.
+- 혹시나 .properties 파일이 존재한다면, 삭제한다.
 7. application.yaml 의 ros.websocket.uri 확인
 - 실제 ROS 서버와 통신할 경우, 'ws://localhost:9090' 선택
 - SimpleWebSocketServer 을 이용한 테스트의 경우, 'ws://localhost:9090/ros' 선택
