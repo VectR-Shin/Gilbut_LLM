@@ -1,51 +1,9 @@
-- 테스트 시에는 되도록이면 IntelliJ 사용을 추천한다.
-- 테스트를 너무 많이 수행하지 않도록 한다. - 외부 LLM 요청 관련
+실행 방법
 
----
-
-JAR 실행 통합 테스트 할 때 (서버 요청 uri: ws://localhost:9090 고정)
-1. Java 17 Amazon Corretto 17.0.11 설치
-2. Gemini api key 환경변수 추가 (환경변수명, 키 값 은 공지 확인 - 정확히 지키기)
-3. java -jar [JAR 파일명 (ex: llmService-0.0.1.jar)] 명령으로 실행
-
----
-
-IntelliJ 으로 실행 - 통합 테스트 할 때
-
-1. 코드 다운로드 & 압축해제
-2. 이름을 각각 llmService, simpleRosServer 로 변경
-3. Java 17 Amazon Corretto 17.0.11 설치
-4. Gemini api key 환경변수 추가 (환경변수명, 키 값은 공지 확인 - 정확히 지키기)
-5. IntelliJ Ultimate 설치
-6. IntelliJ Ultimate 에 Educated Licence 적용하기
-7. IntelliJ 설정
-- File - Project Structure - Project - SDK 를 Amazon Corretto 17.0.11 로 변경
-- Settings - Build, Execution, Deployment - Build Tools - Gradle - 중간의 Build and run using 을 IntelliJ IDEA 로 변경
-- Settings - Build, Execution, Deployment - Build Tools - Gradle - 하단의 Gradle JVM 을 Amazon Corretto 17.0.11 로 변경
-- Settings - Build, Execution, Deployment - Compiler - Annotation Processors - 상단의 Enable annotation processing 체크
-8. Notion 최하단의 Plus 파트의 내용 참조해서 application.yaml, prompt.yaml, application-test.yaml 을 llmServer 에 추가
-- 만약 .yaml 파일이 이미 존재한다면, 추가로 넣을 필요는 없다.
-- test.resources 가 없다면, 새로 만들고 넣으면 된다.
-- 혹시나 .properties 파일이 존재한다면, 삭제한다.
-9. application.yaml 의 ros.websocket.uri 확인
-- 실제 ROS 서버와 통신할 경우, 'ws://localhost:9090' 선택
-- SimpleWebSocketServer 을 이용한 테스트의 경우, 'ws://localhost:9090/ros' 선택
-10. SimpleWebSocketServer 을 IntelliJ 로 '새 창' 에서 열고, 5번의 설정 진행
-11. Notion 최하단의 Plus 파트의 내용 참조해서 application.yaml 을 SimpleWebSocketServer 에 추가
-12. SimpleWebSocketServer 먼저 실행
-13. llmService 실행
-14. 'https://hoppscotch.io/realtime/websocket' 에서 테스트 진행
-- 'ws://localhost:8080/whisper' 와 연결
-- 메시지 타입을 JSON 변경
-- 정해진 형식의 JSON 메시지를 작성
-- 보내기 버튼 클릭
-- 조금 기다린 뒤, SimpleWebSocket 에 발생하는 로그 확인
-15. 주의점
-- 현재는 NAVIGATION 기능만이 제공된다. 따라서, SimpleWebSocket 에서 로그를 보고 싶다면 NAVIGATION 이 되도록 user prompt 제공
-- CHAT, ERROR 가 발생하면 llmService 내부에서 그냥 먹어버리도록 설계했다. (이후에 TTS 연계할 수 있도록 임시 조치) - SttMessageHandler 참조
-- /whisper 의 요청 status 가 ERROR 인 경우도, 일단은 내부에서 먹도록 설계했다. - SttMessageHandler 참조
-
----
-
-ps1. Spring boot 의 STT Handler url(ws://localhost:8080/whisper)
-ps2. ROS 의 url(ws://localhost:9090)
+1. Google Drive 에서 원하는 파일 설치
+2. JAVA Amazon Corretto 17.0.11 설치
+3. JAVA 환경변수 설정
+4. GEMINI_API_KEY 환경변수 설정
+5. simpleRosServer.jar 실행 (혹은 ROS 서버)
+6. llmService_test.jar 실행 (혹은 llmService.jar)
+7. 사용한 이후 반드시 프로세스 kill
