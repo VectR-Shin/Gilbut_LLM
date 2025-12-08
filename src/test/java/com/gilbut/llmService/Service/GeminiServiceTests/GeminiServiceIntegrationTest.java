@@ -32,7 +32,7 @@ public class GeminiServiceIntegrationTest {
     @Test
     void ask_realLlmServer_navigation_test() throws Exception{
         // given
-        String userPrompt = "가천관은 어디로 가야해?";
+        String userPrompt = "경영대로 가고 싶어";
 
         Thread.sleep(1000);
 
