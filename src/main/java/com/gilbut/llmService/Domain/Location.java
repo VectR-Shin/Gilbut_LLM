@@ -21,7 +21,7 @@ public class Location {
     private Long id;
 
     @Column(unique = true)
-    private String location;
+    private String locationCode;
 
     private double pos_x;
     private double pos_y;

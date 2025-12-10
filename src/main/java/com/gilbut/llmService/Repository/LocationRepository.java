@@ -54,11 +54,11 @@ public class LocationRepository {
     // location(장소명)을 기반으로 데이터를 하나만 반환.
     // location 속성에는 UNIQUE 제약조건 있으므로 1개 반환됨.
     // 만약, 없을 경우, null 이 담겨서 반환된다.
-    public Optional<Location> findByName(String locationName) {
+    public Optional<Location> findByCode(String locationCode) {
         List<Location> result = em.createQuery(
-                "SELECT L FROM Location L WHERE L.location = :loc",
+                "SELECT L FROM Location L WHERE L.locationCode = :loc",
                 Location.class
-        ).setParameter("loc", locationName)
+        ).setParameter("loc", locationCode)
                 .getResultList();
 
         return result.stream().findFirst();

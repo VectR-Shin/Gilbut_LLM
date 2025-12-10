@@ -1,11 +1,12 @@
 package com.gilbut.llmService.Service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
-import com.gilbut.llmService.DTO.DTOStatus.LlmStatusType;
-import com.gilbut.llmService.DTO.DTOStatus.RosStatusType;
-import com.gilbut.llmService.DTO.LlmMessageDTO;
-import com.gilbut.llmService.DTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.LlmStatusType;
+import com.gilbut.llmService.DTO.LlmMessageDTO.LlmMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosStatusType;
 import com.gilbut.llmService.Domain.Location;
 import com.gilbut.llmService.Log.LoggingTestExecutionOrderExtension;
 import com.gilbut.llmService.Repository.LocationRepository;
@@ -13,70 +14,61 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /*
  * LocationService 의 Mocking 기반 유닛 테스트
  */
-
-@SpringBootTest
 @TestMethodOrder(MethodOrderer.Random.class)
 @ActiveProfiles("test")
-@ExtendWith(LoggingTestExecutionOrderExtension.class)
-@Transactional
+@ExtendWith({LoggingTestExecutionOrderExtension.class, MockitoExtension.class})
 public class LocationServiceTest {
-    @Autowired
+    @Mock
     private LocationRepository locationRepository;
 
-    @Autowired
+    @InjectMocks
     private LocationService locationService;
 
     @Test
-    void getROSMessageDTO_test() {
+    void getROSMessageDTO_SUCCESS_test() {
         // given
-        Location location = new Location(null, "LOCATION", 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
-        locationRepository.save(location);
+        String code = "AI_HALL";
 
-        LlmMessageDTO navLLM = new LlmMessageDTO(LlmStatusType.NAVIGATION, location.getLocation(), "This is 'NAVIGATION' type.");
+        Location location = new Location(1L, "AI_HALL", 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7);
 
-        LlmMessageDTO chatLLM = new LlmMessageDTO(LlmStatusType.CHAT, null, "This is 'CHAT' type.");
-        LlmMessageDTO errorLLM = new LlmMessageDTO(LlmStatusType.ERROR, null, "This is 'ERROr' type.");
-
-        LlmMessageDTO wrongNavLLM = new LlmMessageDTO(LlmStatusType.NAVIGATION, "NotExistLocation", "This is 'Navigation' type. But, location not found.");
+        when(locationRepository.findByCode(code)).thenReturn(Optional.of(location));
 
         // when
-        RosMessageDTO navROS = locationService.getROSMessageDTO(navLLM);
-
-        RosMessageDTO chatROS = locationService.getROSMessageDTO(chatLLM);
-        RosMessageDTO errorROS = locationService.getROSMessageDTO(errorLLM);
-
-        RosMessageDTO wrongNavROS = locationService.getROSMessageDTO(wrongNavLLM);
+        RosMessageDTO result = locationService.getROSMessageDTO(code);
 
         // then
-        assertNotNull(navROS);
-        assertEquals(RosStatusType.SUCCESS, navROS.getStatus());
-        assertEquals(location.getPos_x(), navROS.getPos_x());
-        assertEquals(location.getPos_y(), navROS.getPos_y());
-        assertEquals(location.getPos_z(), navROS.getPos_z());
-        assertEquals(location.getOri_x(), navROS.getOri_x());
-        assertEquals(location.getOri_y(), navROS.getOri_y());
-        assertEquals(location.getOri_z(), navROS.getOri_z());
-        assertEquals(location.getOri_w(), navROS.getOri_w());
+        assertEquals(RosStatusType.SUCCESS, result.getStatus());
+        assertEquals(1.1, result.getPos_x());
+        assertEquals(2.2, result.getPos_y());
+        assertEquals(3.3, result.getPos_z());
+    }
 
-        assertNull(chatROS);
-        assertNull(errorROS);
+    @Test
+    void getROSMessageDTO_ERROR_test() {
+        // given
+        String code = "UNKNOWN_LOCATION";
 
-        assertNotNull(wrongNavROS);
-        assertEquals(RosStatusType.ERROR, wrongNavROS.getStatus());
-        assertNull(wrongNavROS.getPos_x());
-        assertNull(wrongNavROS.getPos_y());
-        assertNull(wrongNavROS.getPos_z());
-        assertNull(wrongNavROS.getOri_x());
-        assertNull(wrongNavROS.getOri_y());
-        assertNull(wrongNavROS.getOri_z());
-        assertNull(wrongNavROS.getOri_w());
+        when(locationRepository.findByCode(code)).thenReturn(Optional.empty());
+
+        // when
+        RosMessageDTO result = locationService.getROSMessageDTO(code);
+
+        //then
+        assertEquals(RosStatusType.ERROR, result.getStatus());
+        assertNull(result.getPos_x());
+        assertNull(result.getPos_y());
     }
 }

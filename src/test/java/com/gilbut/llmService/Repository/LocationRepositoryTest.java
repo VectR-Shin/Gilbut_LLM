@@ -9,14 +9,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
+@DataJpaTest
+@Import(LocationRepository.class)
 @TestMethodOrder(MethodOrderer.Random.class)
 @ActiveProfiles("test")
 @ExtendWith(LoggingTestExecutionOrderExtension.class)
@@ -37,24 +40,24 @@ public class LocationRepositoryTest {
 
         // then
         assertTrue(correct.isPresent());
-        assertEquals(newLocation.getLocation(), correct.get().getLocation());
+        assertEquals("NEW_LOCATION", correct.get().getLocationCode());
 
         assertTrue(wrong.isEmpty());
     }
 
     @Test
-    void findByName_test() {
+    void findByCode_test() {
         // given
         Location newLocation = new Location(null, "NEW_LOCATION", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         locationRepository.save(newLocation);
 
         // when
-        Optional<Location> correct = locationRepository.findByName(newLocation.getLocation());
-        Optional<Location> wrong = locationRepository.findByName("HOME");// 존재하지 않는 Location
+        Optional<Location> correct = locationRepository.findByCode(newLocation.getLocationCode());
+        Optional<Location> wrong = locationRepository.findByCode("HOME");// 존재하지 않는 Location
 
         // then
         assertTrue(correct.isPresent());
-        assertEquals(newLocation.getLocation(), correct.get().getLocation());
+        assertEquals(newLocation.getLocationCode(), correct.get().getLocationCode());
 
         assertTrue(wrong.isEmpty());
     }
@@ -92,7 +95,7 @@ public class LocationRepositoryTest {
 
         // then
         assertTrue(correct.isPresent());
-        assertEquals(newLocation1.getLocation(), correct.get().getLocation());
+        assertEquals("NEW_LOCATION1", correct.get().getLocationCode());
 
         assertTrue(wrong.isEmpty());
     }

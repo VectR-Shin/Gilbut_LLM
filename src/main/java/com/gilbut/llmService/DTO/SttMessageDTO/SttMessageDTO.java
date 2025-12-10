@@ -1,6 +1,5 @@
-package com.gilbut.llmService.DTO;
+package com.gilbut.llmService.DTO.SttMessageDTO;
 
-import com.gilbut.llmService.DTO.DTOStatus.SttStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

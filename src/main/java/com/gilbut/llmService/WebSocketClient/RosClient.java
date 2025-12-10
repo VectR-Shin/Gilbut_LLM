@@ -9,6 +9,6 @@ public interface RosClient {
     void reconnect() throws Exception;
 
     void setOnOpen(Runnable callback);
-    void setOnClose(Runnable callback);
+    void setOnClose(Consumer<Integer> closeCodeConsumer);
     void setOnError(Consumer<Exception> callback);
 }

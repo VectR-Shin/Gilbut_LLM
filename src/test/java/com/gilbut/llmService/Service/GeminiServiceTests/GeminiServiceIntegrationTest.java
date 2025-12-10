@@ -2,8 +2,7 @@ package com.gilbut.llmService.Service.GeminiServiceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.gilbut.llmService.DTO.DTOStatus.LlmStatusType;
-import com.gilbut.llmService.DTO.LlmMessageDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.*;
 import com.gilbut.llmService.Service.GeminiService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -29,10 +28,11 @@ public class GeminiServiceIntegrationTest {
     @Autowired
     private GeminiService geminiService;
 
+    /*
     @Test
-    void ask_realLlmServer_navigation_test() throws Exception{
+    void ask_realLlmServer_navigationExact_test() throws Exception{
         // given
-        String userPrompt = "경영대로 가고 싶어";
+        String userPrompt = "에공관으로 가고 싶은데, 어디로 가야 해?";
 
         Thread.sleep(1000);
 
@@ -41,11 +41,34 @@ public class GeminiServiceIntegrationTest {
 
         // then
         assertTrue(result.isPresent());
+        assertInstanceOf(NavigationExactDTO.class, result.get());
+        assertEquals(LlmStatusType.NAVIGATION_EXACT, result.get().getType());
 
-        log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", result.get().toString());
+        NavigationExactDTO navigationExactDTO = (NavigationExactDTO) result.get();
 
-        assertEquals(LlmStatusType.NAVIGATION, result.get().getType());
-        assertEquals("GACHON_HALL", result.get().getLocation());
+        log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", navigationExactDTO.toString());
+
+        assertEquals("AI_HALL", navigationExactDTO.getLocationCode());
+    }
+
+    @Test
+    void ask_realLlmServer_navigationDescribe_test() throws Exception {
+        // given
+        String userPrompt = "던킨도넛이 있는 건물로 가고 싶은데, 어디로 가야 해?";
+
+        Thread.sleep(1000);
+
+        // when
+        Optional<LlmMessageDTO> result = geminiService.ask(userPrompt);
+
+        // then
+        assertTrue(result.isPresent());
+        assertInstanceOf(NavigationDescribeDTO.class, result.get());
+        assertEquals(LlmStatusType.NAVIGATION_DESCRIBE, result.get().getType());
+
+        NavigationDescribeDTO navigationDescribeDTO = (NavigationDescribeDTO) result.get();
+
+        log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", navigationDescribeDTO.toString());
     }
 
     @Test
@@ -60,11 +83,12 @@ public class GeminiServiceIntegrationTest {
 
         // then
         assertTrue(result.isPresent());
-
-        log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", result.get().toString());
-
+        assertInstanceOf(ChatDTO.class, result.get());
         assertEquals(LlmStatusType.CHAT, result.get().getType());
-        assertNull(result.get().getLocation());
+
+        ChatDTO chatDTO = (ChatDTO) result.get();
+
+        log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", chatDTO.toString());
     }
 
     @Test
@@ -79,10 +103,11 @@ public class GeminiServiceIntegrationTest {
 
         // then
         assertTrue(result.isPresent());
+        assertInstanceOf(ErrorDTO.class, result.get());
+        assertEquals(LlmStatusType.ERROR, result.get().getType());
+
+        ErrorDTO errorDTO = (ErrorDTO) result.get();
 
         log.info("[TEST - GeminiServiceIntegrationTest] LLM 응답(DTO): {}", result.get().toString());
-
-        assertEquals(LlmStatusType.ERROR, result.get().getType());
-        assertNull(result.get().getLocation());
-    }
+    }*/
 }

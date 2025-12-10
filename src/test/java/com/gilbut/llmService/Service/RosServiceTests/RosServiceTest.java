@@ -1,16 +1,14 @@
 package com.gilbut.llmService.Service.RosServiceTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.DTOStatus.RosStatusType;
-import com.gilbut.llmService.DTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosStatusType;
 import com.gilbut.llmService.Log.LoggingTestExecutionOrderExtension;
 import com.gilbut.llmService.Properties.RosProperties;
 import com.gilbut.llmService.Service.RosService;
 import com.gilbut.llmService.WebSocketClient.RosClient;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.gilbut.llmService.WebSocketClient.RosWebSocketClient;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -49,21 +47,18 @@ public class RosServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        when(rosProperties.getUri()).thenReturn("ws://localhost:9090");
-        doNothing().when(client).connect();
-        rosService.init();
-    }
-
-    private void rosServiceConnectedTrue() throws Exception {
-        rosService.send(new RosMessageDTO());// connected 의 true 변경을 목적으로 실행
+        lenient().when(rosProperties.getUri()).thenReturn("ws://localhost:9090");
     }
 
     @Test
     void send_whenClientOpen_test() throws Exception {
-        // rosService 의 connected 를 true 로 세팅
+        // given
+        doNothing().when(client).connect();
+
+        // 초기 연결
+        rosService.init();
         rosService.setConnected(true);
 
-        // given
         RosMessageDTO rosDTO = new RosMessageDTO();
         rosDTO.setStatus(RosStatusType.SUCCESS);
 
@@ -76,19 +71,48 @@ public class RosServiceTest {
     }
 
     @Test
-    void send_whenClientClose_test() throws Exception {
-        // rosService 의 connected 를 false 로 세팅
-        rosService.setConnected(false);
-
+    void send_initConnectFail_test() throws Exception {
         // given
+        // 초기 connect 실패
+        doThrow(new RuntimeException()).when(client).connect();
+
+        // 이후의 reconnect 성공
+        doNothing().when(client).reconnect();
+
+        // when
+        rosService.init();
+
+        // 비동기 재연결 대기
+        Thread.sleep(1200);
+
+        // then
+        verify(client, times(1)).connect();
+    }
+
+    @Test
+    void send_connectFail_test() throws Exception{
+        // given
+        doNothing().when(client).connect();
+        doNothing().when(client).reconnect();
+
+        rosService.init();
+        rosService.setConnected(true);
+
+        // send 중 오류 발생 -> 연결 끊김
+        doThrow(new RuntimeException("[MOCK] send() 실패")).when(client).send(anyString());
+
         RosMessageDTO rosDTO = new RosMessageDTO();
         rosDTO.setStatus(RosStatusType.SUCCESS);
 
         // when
         rosService.send(rosDTO);
+        rosService.onConnectionLost(1006);
+
+        // 비동기 재연결 대기 (실제 코드에서는 1000부터 시작)
+        Thread.sleep(1200);
 
         // then
-        verify(client, times(1)).reconnect();
-        verify(client, never()).send(anyString());
+        verify(client, times(1)).send(anyString());
+        verify(client, atLeastOnce()).reconnect();
     }
 }

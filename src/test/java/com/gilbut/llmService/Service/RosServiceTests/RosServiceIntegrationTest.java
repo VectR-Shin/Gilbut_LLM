@@ -2,8 +2,8 @@ package com.gilbut.llmService.Service.RosServiceTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.gilbut.llmService.DTO.DTOStatus.RosStatusType;
-import com.gilbut.llmService.DTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosStatusType;
 import com.gilbut.llmService.Service.RosService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

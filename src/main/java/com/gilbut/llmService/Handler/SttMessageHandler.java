@@ -1,17 +1,20 @@
 package com.gilbut.llmService.Handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.DTOStatus.SttStatusType;
-import com.gilbut.llmService.DTO.LlmMessageDTO;
-import com.gilbut.llmService.DTO.RosMessageDTO;
-import com.gilbut.llmService.DTO.SttMessageDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.LlmMessageDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.NavigationDescribeDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.NavigationExactDTO;
+import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
+import com.gilbut.llmService.DTO.SttMessageDTO.SttMessageDTO;
+import com.gilbut.llmService.DTO.SttMessageDTO.SttStatusType;
+import com.gilbut.llmService.Domain.Location;
 import com.gilbut.llmService.Service.GeminiService;
+import com.gilbut.llmService.Service.HintService;
 import com.gilbut.llmService.Service.LocationService;
 import com.gilbut.llmService.Service.RosService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -56,6 +59,7 @@ public class SttMessageHandler extends TextWebSocketHandler {
     private final RosService rosService;
     private final GeminiService geminiService;
     private final LocationService locationService;
+    private final HintService hintService;
 
     @Override
     public void handleTextMessage(@NonNull WebSocketSession session,
@@ -88,13 +92,33 @@ public class SttMessageHandler extends TextWebSocketHandler {
             if (llmMsgOptional.isPresent()) {
                 LlmMessageDTO llmMessageDTO = llmMsgOptional.get();
 
-                // llmMessageDTO 의 정보를 기반으로 DB 검색 및 ROSMessageDTO 에 파싱
-                RosMessageDTO rosMessageDTO = locationService.getROSMessageDTO(llmMessageDTO);
+                log.info("[HANDLER - SttMessageHandler] LLM Message Received: {}", llmMessageDTO.toString());
 
-                // 프로토타입에서는 'NAVIGATION' 타입만 기능을 제공한다. (CHAT, ERROR 는 null 을 반환하도록 했다)
+                RosMessageDTO rosMessageDTO = null;
+
+                // NAVIGATION_EXACT 처리
+                if (llmMessageDTO instanceof NavigationExactDTO navExactDTO) {
+                    rosMessageDTO = locationService.getROSMessageDTO(navExactDTO.getLocationCode());
+                    // TTS 처리
+                }
+                // NAVIGATION_DESCRIBE 처리
+                else if (llmMessageDTO instanceof NavigationDescribeDTO navDescribeDTO) {
+                    Optional<Location> optionalLocation = hintService.inferLocation(navDescribeDTO);
+                    if (optionalLocation.isPresent()) {// 묘사의 대상을 선정했다면
+                        Location location = optionalLocation.get();
+                        rosMessageDTO = locationService.getROSMessageDTO(location.getLocationCode());
+                    } else {// 묘사의 대상을 제대로 선정하지 못했다면
+                        // TTS 처리
+                    }
+                }
+                // CHAT, ERROR 에 대한 처리는 아직 구현되지 않음
+                else {
+                    // rosMessageDTO 가 null 로 유지
+                    // TTS 처리
+                }
+
+                // NAVIGATION_EXACT | NAVIGATION_DESCRIBE 요청이라면 ROS 로 메시지 송신 (RosStatusType == ERROR 도 송신)
                 if (rosMessageDTO != null) {
-                    // ROS 로 응답
-                    // DB 탐색에 이상이 있는 경우, status.ERROR
                     rosService.send(rosMessageDTO);
                 }
 

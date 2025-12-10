@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.DTOStatus.LlmStatusType;
-import com.gilbut.llmService.DTO.LlmMessageDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.ChatDTO;
+import com.gilbut.llmService.DTO.LlmMessageDTO.LlmStatusType;
+import com.gilbut.llmService.DTO.LlmMessageDTO.LlmMessageDTO;
 import com.gilbut.llmService.Log.LoggingTestExecutionOrderExtension;
 import com.gilbut.llmService.Service.GeminiService;
 import com.google.genai.Client;
+import com.google.genai.errors.ServerException;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +29,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /*
  * GeminiService 의 Mocking 기반 유닛 테스트
@@ -66,7 +67,7 @@ public class GeminiServiceTest {
     void ask_success_test() throws Exception {
         // given
         String userPrompt = "안녕하세요";
-        String jsonResponse = "{\"type\":\"CHAT\",\"location\":null,\"tts_message\":\"안녕하세요!\"}";
+        String jsonResponse = "{\"type\":\"CHAT\",\"message\":\"안녕하세요!\"}";
 
         // mock 생성 & 설정
         when(objectMapper.writeValueAsString(userPrompt)).thenReturn("\"안녕하세요\"");
@@ -80,10 +81,7 @@ public class GeminiServiceTest {
                 any(GenerateContentConfig.class)
         )).thenReturn(mockResponse);
 
-        LlmMessageDTO mockDTO = new LlmMessageDTO();
-        mockDTO.setType(LlmStatusType.CHAT);
-        mockDTO.setLocation(null);
-        mockDTO.setTts_message("안녕하세요!");
+        LlmMessageDTO mockDTO = new ChatDTO("안녕하세요!");
         when(objectMapper.readValue(jsonResponse, LlmMessageDTO.class))
                 .thenReturn(mockDTO);
 
@@ -92,9 +90,12 @@ public class GeminiServiceTest {
 
         // then
         assertTrue(result.isPresent());
+        assertInstanceOf(ChatDTO.class, result.get());
         assertEquals(LlmStatusType.CHAT, result.get().getType());
-        assertNull(result.get().getLocation());
-        assertEquals("안녕하세요!", result.get().getTts_message());
+
+        ChatDTO chatDTO = (ChatDTO) result.get();
+
+        assertEquals("안녕하세요!", chatDTO.getMessage());
     }
 
     @Test
@@ -133,23 +134,35 @@ public class GeminiServiceTest {
     }
 
     @Test
-    void ask_apiFail_test() throws Exception {
+    void ask_503Retry_test() throws Exception {
         // given
         String userPrompt = "안녕하세요";
+        String jsonResponse = "{\"type\":\"CHAT\",\"message\":\"안녕하세요!\"}";
 
-        // mock 생성 및 설정
         when(objectMapper.writeValueAsString(userPrompt)).thenReturn("\"안녕하세요\"");
 
-        when(models.generateContent(
-                anyString(),
-                anyString(),
-                any(GenerateContentConfig.class)
-        )).thenThrow(new RuntimeException("[MOCK] API 호출 실패"));
+        GenerateContentResponse mockResponse = mock(GenerateContentResponse.class);
+        when(mockResponse.text()).thenReturn(jsonResponse);
+
+        // 1번째 시도에서 실패. 2번째 시도에서 성공
+        when(models.generateContent(anyString(), anyString(), any(GenerateContentConfig.class)))
+                .thenThrow(server503())
+                .thenReturn(mockResponse);
+
+        LlmMessageDTO mockDTO = new ChatDTO("안녕하세요!");
+        when(objectMapper.readValue(jsonResponse, LlmMessageDTO.class))
+                .thenReturn(mockDTO);
 
         // when
         Optional<LlmMessageDTO> result = geminiService.ask(userPrompt);
 
         // then
-        assertTrue(result.isEmpty());
+        assertTrue(result.isPresent());
+        verify(models, times(2))
+                .generateContent(anyString(), anyString(), any(GenerateContentConfig.class));
+    }
+
+    private ServerException server503() {
+        return new ServerException(503, "Service Unavailable", null);
     }
 }

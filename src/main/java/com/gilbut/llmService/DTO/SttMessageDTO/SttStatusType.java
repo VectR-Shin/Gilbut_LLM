@@ -1,4 +1,4 @@
-package com.gilbut.llmService.DTO.DTOStatus;
+package com.gilbut.llmService.DTO.SttMessageDTO;
 
 public enum SttStatusType {
     SUCCESS,

@@ -1,6 +1,5 @@
-package com.gilbut.llmService.DTO;
+package com.gilbut.llmService.DTO.RosMessageDTO;
 
-import com.gilbut.llmService.DTO.DTOStatus.RosStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public class RosWebSocketClient extends WebSocketClient implements RosClient {
 
     private Runnable onOpenCallback = () -> {};
-    private Runnable onCloseCallback = () -> {};
+    private Consumer<Integer> onCloseCallback = code -> {};
     private Consumer<Exception> onErrorCallback = ex -> {};
 
     public RosWebSocketClient(URI serverUri) throws Exception {
@@ -26,25 +26,21 @@ public class RosWebSocketClient extends WebSocketClient implements RosClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        log.info("[ROS - ROSWebSocketClient] 연결 완료");
         onOpenCallback.run();
     }
 
     @Override
     public void onMessage(String message) {
-        log.info("[ROS - ROSWebSocketClient onMessage] 로부터 수신한 메시지: {}", message);
     }
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
         // reason 이 UTF-8 로 오지 않으면 로그가 깨지는 현상이 있음. 주의
-        log.info("[ROS - ROSWebSocketClient onClose] 연결 종료: {}", reason);
-        onCloseCallback.run();
+        onCloseCallback.accept(code);
     }
 
     @Override
     public void onError(Exception ex) {
-        log.error("[ROS - ROSWebSocketClient onError] 연결 오류: {}", ex.getMessage());
         ex.printStackTrace();
         onErrorCallback.accept(ex);
     }
@@ -56,7 +52,7 @@ public class RosWebSocketClient extends WebSocketClient implements RosClient {
     }
 
     @Override
-    public void setOnClose(Runnable callback) {
+    public void setOnClose(Consumer<Integer> callback) {
         this.onCloseCallback = callback;
     }
 
