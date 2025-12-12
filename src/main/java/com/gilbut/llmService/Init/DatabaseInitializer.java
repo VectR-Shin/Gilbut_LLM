@@ -27,11 +27,11 @@ public class DatabaseInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // 장소
-        Location ai_hall = locationRepository.save(new Location(null, "AI_HALL", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0));
-        Location vision_tower = locationRepository.save(new Location(null, "VISION_TOWER", 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1));
-        Location gachon_hall = locationRepository.save(new Location(null, "GACHON_HALL", 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2));
-        Location main_library = locationRepository.save(new Location(null, "MAIN_LIBRARY", 3.3, 3.3, 3.3, 3.3, 3.3, 3.3, 3.3));
-        Location global_center = locationRepository.save(new Location(null, "GLOBAL_CENTER", 4.4, 4.4, 4.4, 4.4, 4.4, 4.4, 4.4));
+        Location ai_hall = locationRepository.save(new Location(null, "AI_HALL", 29.3, -92.7, -2.4, 0.0, 0.0, 0.707, 0.707));
+        Location vision_tower = locationRepository.save(new Location(null, "VISION_TOWER", -14.9, -193.3, -2.4, 0.0, 0.0, 1.0, 1.0));
+        Location gachon_hall = locationRepository.save(new Location(null, "GACHON_HALL", 83.4, -83.7, -2.4, 0.0, 0.0, 0.707, 0.707));
+        Location main_library = locationRepository.save(new Location(null, "MAIN_LIBRARY", 138.3, -197.6, -2.4, 0.0, 0.0, 0.0, 1.0));
+        Location global_center = locationRepository.save(new Location(null, "GLOBAL_CENTER", -31.2, -117.9, -2.4, 0.0, 0.0, 0.707, 0.707));
 
         // 키워드
             // AI_HALL

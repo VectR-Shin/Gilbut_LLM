@@ -92,13 +92,15 @@ public class SttMessageHandler extends TextWebSocketHandler {
             if (llmMsgOptional.isPresent()) {
                 LlmMessageDTO llmMessageDTO = llmMsgOptional.get();
 
-                log.info("[HANDLER - SttMessageHandler] LLM Message Received: {}", llmMessageDTO.toString());
+                log.info("[HANDLER - SttMessageHandler] LLM 메시지 수신: {}", llmMessageDTO.toString());
 
                 RosMessageDTO rosMessageDTO = null;
+                String locationCode = null;
 
                 // NAVIGATION_EXACT 처리
                 if (llmMessageDTO instanceof NavigationExactDTO navExactDTO) {
-                    rosMessageDTO = locationService.getROSMessageDTO(navExactDTO.getLocationCode());
+                    locationCode = navExactDTO.getLocationCode();
+                    rosMessageDTO = locationService.getROSMessageDTO(locationCode);
                     // TTS 처리
                 }
                 // NAVIGATION_DESCRIBE 처리
@@ -106,7 +108,8 @@ public class SttMessageHandler extends TextWebSocketHandler {
                     Optional<Location> optionalLocation = hintService.inferLocation(navDescribeDTO);
                     if (optionalLocation.isPresent()) {// 묘사의 대상을 선정했다면
                         Location location = optionalLocation.get();
-                        rosMessageDTO = locationService.getROSMessageDTO(location.getLocationCode());
+                        locationCode = location.getLocationCode();
+                        rosMessageDTO = locationService.getROSMessageDTO(locationCode);
                     } else {// 묘사의 대상을 제대로 선정하지 못했다면
                         // TTS 처리
                     }
@@ -119,6 +122,9 @@ public class SttMessageHandler extends TextWebSocketHandler {
 
                 // NAVIGATION_EXACT | NAVIGATION_DESCRIBE 요청이라면 ROS 로 메시지 송신 (RosStatusType == ERROR 도 송신)
                 if (rosMessageDTO != null) {
+                    if (locationCode != null) {
+                        log.info("[HANDLER - SttMessageHandler] 장소 코드: {}의 정보를 ROS 로 전송합니다.", locationCode);
+                    }
                     rosService.send(rosMessageDTO);
                 }
 
