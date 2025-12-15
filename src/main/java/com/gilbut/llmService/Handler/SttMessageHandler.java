@@ -62,6 +62,11 @@ public class SttMessageHandler extends TextWebSocketHandler {
     private final HintService hintService;
 
     @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        log.info("[HANDLER - SttMessageHandler] Whisper 연결: {}", session.getId());
+    }
+
+    @Override
     public void handleTextMessage(@NonNull WebSocketSession session,
                                   @NonNull TextMessage message) {
         try {

@@ -39,7 +39,7 @@ public class RosService {
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
     // 안정화 로직 관련
-    private static final int MAX_RECONNECT_ATTEMPTS = 5;
+    private static final long MAX_RECONNECT_DELAY_MS = 60_000L;
     private static final long BASE_RECONNECT_DELAY_MS = 1000L;
 
     private final AtomicInteger reconnectAttempts = new AtomicInteger(0);
@@ -120,13 +120,12 @@ public class RosService {
 
         int attempt = reconnectAttempts.incrementAndGet();
 
-        if (attempt > MAX_RECONNECT_ATTEMPTS) {
-            reconnecting.set(false);
-            log.error("[ROS - RosService] 재연결 최대 시도 초과. 재연결 중단");
-            return;
-        }
+        long exp = Math.min(attempt - 1, 10);
+        long delay = Math.min(
+                BASE_RECONNECT_DELAY_MS * (1L << exp),
+                MAX_RECONNECT_DELAY_MS
+        );
 
-        long delay = BASE_RECONNECT_DELAY_MS * (1L << (attempt - 1));
         log.warn("[ROS - RosService] ROS 재연결 {}ms 후 {}회 시도", delay, attempt);
 
         try {
