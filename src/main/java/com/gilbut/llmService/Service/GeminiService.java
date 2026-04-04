@@ -18,7 +18,7 @@ import java.util.Optional;
 /*
  * Gemini Client(GeminiConfig)를 이용하여 요청을 보내고, 응답을 받는 서비스.
  * Gemini 2.5 flash 를 이용한다.
- * Gemini 의 시스템 프롬프트는 prompt.yaml 참조
+ * Gemini 의 시스템 프롬프트는 oldPrompt.yaml 참조
  * ask 에 제공되는 prompt 는 사용자 프롬프트이다.
  * Gemini 에게는 '시스템 프롬프트 + 사용자 프롬프트' 가 제공된다.
  * Gemini 의 응답: Json String 은 Jackson 을 이용해 LLMMessageDTO 로 파싱된다.

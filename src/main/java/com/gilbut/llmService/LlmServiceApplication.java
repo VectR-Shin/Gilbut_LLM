@@ -12,33 +12,25 @@ public class LlmServiceApplication {
 
 }
 
+
 /*
 
-할 일
+해야 할 일
 
-완료. HintEntity 추가
-완료. HintRepository 추가
-완료. LlmMessageDTO 수정
-완료. GeminiService 수정
-완료. HintService 추가
-6. SttMessageHandler 수정
-완료. 프롬프트 수정
-8. DBInit 추가
-
-
-테스트 할 일
-완료. HintRepository 테스트
-완료. GeminiService 테스트
-완료. HintService 테스트
-4. 전체 통합 테스트
+1. 복합 명령 처리
+	1_1. (완료)LlmDTO 재정의
+	1_2. (완료)프롬프트 재정의
+	1_3. (완료)GeminiService 수정
+	1_4. (완료)HinService 수정
+	1_5. 오케스트레이션 계층에서 로그 출력 방식으로 테스트
+2. 이전 명령 상태 저장 및 경로 재구성
+	2_1. 경로 정보 세션 저장 구현
+	2_2. 경로 수정 및 취소 구현
+	2_2. 복합 명령 처리와의 통합
+	2_3. 전체 테스트
 
 
-발표자료에 넣을 내용
-1. 크게 2종류로 안내가 가능함
-2. Describe 의 경우, Hint 를 사용
-3. 이 과정에서 Levenshtein distance 사용
-4. LLM 프롬프트
-5. 모카비와 이 방식의 차이점?
+
 
 
  */

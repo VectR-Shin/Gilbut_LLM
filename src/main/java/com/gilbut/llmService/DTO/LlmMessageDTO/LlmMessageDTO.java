@@ -9,12 +9,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = NavigationExactDTO.class, name = "NAVIGATION_EXACT"),
-        @JsonSubTypes.Type(value = NavigationDescribeDTO.class, name = "NAVIGATION_DESCRIBE"),
+        @JsonSubTypes.Type(value = NavigationDTO.class, name = "NAVIGATION"),
         @JsonSubTypes.Type(value = ChatDTO.class, name = "CHAT"),
         @JsonSubTypes.Type(value = ErrorDTO.class, name = "ERROR")
 })
-public sealed interface LlmMessageDTO
-        permits NavigationExactDTO, NavigationDescribeDTO, ChatDTO, ErrorDTO {
+public sealed interface LlmMessageDTO permits NavigationDTO, ChatDTO, ErrorDTO {
     LlmStatusType getType();
 }

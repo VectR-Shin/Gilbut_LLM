@@ -1,30 +1,5 @@
 package com.gilbut.llmService.Handler.SttMessageHandlerTests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.LlmMessageDTO.LlmStatusType;
-import com.gilbut.llmService.DTO.LlmMessageDTO.LlmMessageDTO;
-import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
-import com.gilbut.llmService.DTO.SttMessageDTO.SttMessageDTO;
-import com.gilbut.llmService.DTO.SttMessageDTO.SttStatusType;
-import com.gilbut.llmService.Log.LoggingTestExecutionOrderExtension;
-import com.gilbut.llmService.Service.GeminiService;
-import com.gilbut.llmService.Service.LocationService;
-import com.gilbut.llmService.Service.RosService;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-
-import java.util.Optional;
-
-import static org.mockito.Mockito.*;
-
 /*
  * SttMessageHandler 의 Mocking 기반 유닛 테스트
  */

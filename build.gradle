@@ -31,7 +31,7 @@ repositories {
  */
 bootJar {
 	// CLI에서 -PjarName 옵션으로 이름 변경 가능
-	archiveBaseName.set((project.findProperty("jarName") ?: "llmService_V3").toString())
+	archiveBaseName.set((project.findProperty("jarName") ?: "llmService_V5").toString())
 	archiveVersion.set("")      // version 제거
 	archiveClassifier.set("")   // -plain 제거
 

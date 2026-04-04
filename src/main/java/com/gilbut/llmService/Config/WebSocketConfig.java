@@ -1,5 +1,6 @@
 package com.gilbut.llmService.Config;
 
+import com.gilbut.llmService.Handler.RosMessageHandler;
 import com.gilbut.llmService.Handler.SttMessageHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
@@ -16,15 +17,20 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
-    private final SttMessageHandler handler;
+    private final SttMessageHandler sttHandler;
+    private final RosMessageHandler rosHandler;
 
-    public WebSocketConfig(SttMessageHandler handler) {
-        this.handler = handler;
+    public WebSocketConfig(SttMessageHandler sttHandler, RosMessageHandler rosHandler) {
+        this.sttHandler = sttHandler;
+        this.rosHandler = rosHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler((WebSocketHandler) handler, "/whisper")
+        registry.addHandler((WebSocketHandler) sttHandler, "/whisper")
+                .setAllowedOrigins("*");
+
+        registry.addHandler((WebSocketHandler) rosHandler, "/ros")
                 .setAllowedOrigins("*");
     }
 }

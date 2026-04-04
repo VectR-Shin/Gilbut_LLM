@@ -1,4 +1,4 @@
-package com.gilbut.llmService.DTO.LlmMessageDTO;
+package com.gilbut.llmService.DTO.LlmMessageDTO.Destination;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +9,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public final class NavigationDescribeDTO implements LlmMessageDTO {
-    private final LlmStatusType type = LlmStatusType.NAVIGATION_DESCRIBE;
-
-    private String message;
+public final class DescribeDestinationDTO implements DestinationDTO {
+    private final String subType = "DESCRIBE";
 
     private List<String> positiveKeywords;
     private List<String> negativeKeywords;
