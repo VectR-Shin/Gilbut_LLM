@@ -23,7 +23,7 @@ public class NavigationExecutor {
 
         if (currentFuture != null && !currentFuture.isDone()) {
             currentFuture.completeExceptionally(
-                    new CancellationException("[NavigationExecutor - cancel] Navigation cancelled")
+                    new CancellationException("[NavigationExecutor - cancel()] Navigation cancelled")
             );
         }
 
@@ -47,7 +47,7 @@ public class NavigationExecutor {
     private CompletableFuture<Void> sendAndWait(RosMessageDTO location) {
         if (cancelled) {
             return CompletableFuture.failedFuture(
-                    new CancellationException("[NavigationExecutor - sendAndWait] Navigation cancelled")
+                    new CancellationException("[NavigationExecutor - sendAndWait()] Navigation cancelled")
             );
         }
 

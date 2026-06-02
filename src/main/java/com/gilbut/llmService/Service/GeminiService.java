@@ -53,13 +53,13 @@ public class GeminiService {
                     continue;
                 }
 
-                log.error("[LLM - GeminiService] Gemini 서버 예외 (Code: {})", e.code(), e);
+                log.error("[GeminiService - ask()] Gemini 서버 예외 (Code: {})", e.code(), e);
                 return Optional.empty();
             } catch (JacksonException e) {
-                log.error("[LLM - GeminiService] JSON 파싱 실패. 오류 메시지: {}", e.getMessage(), e);
+                log.error("[GeminiService - ask()] JSON 파싱 실패. 오류 메시지: {}", e.getMessage(), e);
                 return Optional.empty();
             } catch (Exception e) {
-                log.error("[LLM - GeminiService] Gemini API 호출 실패", e);
+                log.error("[GeminiService - ask()] Gemini API 호출 실패. Exception Type: {}", e.getClass().getName(), e);
                 return Optional.empty();
             }
         }

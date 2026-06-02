@@ -1,5 +1,5 @@
 package com.gilbut.llmService.Handler;
-
+/*
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gilbut.llmService.DTO.RosMessageDTO.RosNavigationStatusDTO.RosNavigationStatusDTO;
 import com.gilbut.llmService.Service.Navigation.RosService;
@@ -20,7 +20,7 @@ public class RosMessageHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("[HANDLER - RosMessageHandler] ROS 연결: {}", session.getId());
+        log.info("[RosMessageHandler - afterConnectionEstablished()] ROS 연결: {}", session.getId());
     }
 
     @Override
@@ -42,7 +42,8 @@ public class RosMessageHandler extends TextWebSocketHandler {
             log.info("status: {}", msg.getStatus());
             log.info("==============================");
         } catch (Exception e) {
-            log.error("[HANDLER - RosMessageHandler] RosMessageDTO 파싱 실패", e);
+            log.error("[RosMessageHandler - handleTextMessage()] RosMessageDTO 파싱 실패", e);
         }
     }
 }
+*/

@@ -40,7 +40,7 @@ public class OrchestrationService {
     public void handle(SttMessageDTO sttMessageDTO) throws InterruptedException {
         // STT 서버로부터 ERROR 가 온 경우
         if (sttMessageDTO.getStatus() == SttStatusType.ERROR) {
-            log.info("[APP - OrchestrationService] STT 서버의 ERROR 요청 수신");
+            log.info("[OrchestrationService - handle()] STT 서버의 ERROR 요청 수신");
             return;
         }
 
@@ -51,14 +51,14 @@ public class OrchestrationService {
 
         if (llmMsgOptional.isEmpty()) {
             // llm 응답에 문제가 있는 경우
-            log.warn("[APP - OrchestrationService] LLM 응답 오류");
+            log.warn("[OrchestrationService - handle()] LLM 응답 오류");
             return;
         }
 
         // geminiService.ask() 가 정상 동작했다면
         LlmMessageDTO llmMessageDTO = llmMsgOptional.get();
 
-        log.info("[APP - OrchestrationService] LLM 메시지 수신: {}", llmMessageDTO.toString());
+        log.info("[OrchestrationService - handle()] LLM 메시지 수신: {}", llmMessageDTO.toString());
 
         // 최종 전송 데이터
         TtsMessageDTO ttsMessageDTO = null;
@@ -124,7 +124,7 @@ public class OrchestrationService {
             return;
         }
 
-        log.info("[APP - OrchestrationService] TTS 메시지를 전송합니다.");
+        log.info("[OrchestrationService - sendTtsMessage] TTS 메시지를 전송합니다.");
         ttsService.send(ttsMessageDTO);
     }
 }

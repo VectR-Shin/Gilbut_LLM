@@ -66,13 +66,13 @@ public class RosService {
 
     // ROS 도착 완료 이벤트 전파
     public void onArrivedFromROS() {
-        log.info("[RosService - onArrivedFromROS] ROS 도착 완료 이벤트 수신");
+        log.info("[RosService - onArrivedFromROS()] ROS 도착 완료 이벤트 수신");
 
         for (Runnable listener : arrivedListeners) {
             try {
                 listener.run();
             } catch (Exception e) {
-                log.error("[RosService - onArrivedFromROS] ROS 도착 완료 이벤트 리스터 실행 실패", e);
+                log.error("[RosService - onArrivedFromROS()] ROS 도착 완료 이벤트 리스터 실행 실패", e);
             }
         }
     }
@@ -84,25 +84,27 @@ public class RosService {
 
     @PostConstruct
     public void init() {
+        client.setArrivedCallback(this::onArrivedFromROS);
+
         // WebSocket 이벤트 처리
         client.setOnOpen(() -> {
             connected.set(true);
             reconnectAttempts.set(0);
-            log.info("[RosService - init] 연결 성공: {}", rosProperties.getUri());
+            log.info("[RosService - init()] 연결 성공: {}", rosProperties.getUri());
         });
         client.setOnClose(code -> {
             connected.set(false);
 
             if (code == 1000) {
-                log.info("[RosService - init] 연결 종료");
+                log.info("[RosService - init()] 연결 종료");
                 return;
             }
 
-            log.warn("[RosService - init] 비정상 종료 (Code: {}). 재연결 시도...", code);
+            log.warn("[RosService - init()] 비정상 종료 (Code: {}). 재연결 시도...", code);
             tryReconnectionAsync();
         });
         client.setOnError(ex -> {
-            log.error("[RosService - init] 연결 오류 발생", ex);
+            log.error("[RosService - init()] 연결 오류 발생", ex);
             connected.set(false);
         });
 
@@ -110,7 +112,7 @@ public class RosService {
             // ROS 블로킹 연결
             this.client.connect();
         } catch (Exception e) {
-            log.error("[RosService - init] 초기 연결 실패... 재시도...", e);
+            log.error("[RosService - init()] 초기 연결 실패... 재시도...", e);
             tryReconnectionAsync();
         }
     }
@@ -120,18 +122,18 @@ public class RosService {
             return;
 
         if (!connected.get()) {
-            log.warn("[RosService - sendInternal] 연결 없음. 메시지 폐기");
+            log.warn("[RosService - sendInternal()] 연결 없음. 메시지 폐기");
             return;
         }
 
         try {
             String rosJson = objectMapper.writeValueAsString(payLoad);
             client.send(rosJson);
-            log.info("[ROS - RosService] [{}] 메시지 전송: {}", payLoad.getTopic(), rosJson);
+            log.info("[RosService - sendInternal()] [{}] 메시지 전송: {}", payLoad.getTopic(), rosJson);
         } catch (JacksonException e) {
-            log.error("[ROS - RosService] 메시지 전송 실패 >> Json 변환 실패", e);
+            log.error("[RosService - sendInternal()] 메시지 전송 실패 >> Json 변환 실패", e);
         } catch (Exception e) {
-            log.error("[ROS - RosService] 메시지 전송 실패 >> 전송 오류", e);
+            log.error("[RosService - sendInternal()] 메시지 전송 실패 >> 전송 오류", e);
         }
     }
 
@@ -189,7 +191,7 @@ public class RosService {
                 MAX_RECONNECT_DELAY_MS
         );
 
-        log.warn("[ROS - RosService] ROS 재연결 {}ms 후 {}회 시도", delay, attempt);
+        log.warn("[RosService - tryReconnection()] ROS 재연결 {}ms 후 {}회 시도", delay, attempt);
 
         try {
             Thread.sleep(delay);
@@ -197,7 +199,7 @@ public class RosService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("[ROS - RosService] 연결 재시도 실패", e);
+            log.error("[RosService - tryReconnection()] 연결 재시도 실패", e);
         } finally {
             reconnecting.set(false);
         }

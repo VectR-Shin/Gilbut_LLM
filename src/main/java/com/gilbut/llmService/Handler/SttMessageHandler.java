@@ -11,6 +11,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /*
  * 다음과 같은 기능을 수행하는 핸들러
  * 1. STT Server 로부터 데이터를 수신
@@ -52,10 +55,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 public class SttMessageHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final OrchestrationService orchestrationService;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        log.info("[HANDLER - SttMessageHandler] Whisper 연결: {}", session.getId());
+        log.info("[SttMessageHandler - afterConnectionEstablished()] Whisper 연결: {}", session.getId());
     }
 
     @Override
@@ -75,9 +79,16 @@ public class SttMessageHandler extends TextWebSocketHandler {
             log.info("time: {}", msg.getTime());
             log.info("==============================");
 
-            orchestrationService.handle(msg);
+            executorService.submit(() -> {
+                try {
+                    orchestrationService.handle(msg);
+                } catch (InterruptedException e) {
+                    log.error("[SttMessageHandler - handleTextMessage()] 오케스트레이션 처리 실패", e);
+                }
+            });
+
         } catch (Exception e) {
-            log.error("[HANDLER - SttMessageHandler] SttMessageDTO 파싱 실패", e);
+            log.error("[SttMessageHandler - handleTextMessage()] STT 요청 수행 실패", e);
         }
     }
 }

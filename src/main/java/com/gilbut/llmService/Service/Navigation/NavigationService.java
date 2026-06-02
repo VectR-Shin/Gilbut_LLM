@@ -29,7 +29,7 @@ public class NavigationService {
         cancelInternalAsync()
                 .thenRun(() -> command.setNewRoute(route))
                 .thenCompose(v -> startExecutionAsync())
-                .thenRun(() -> log.info("[NavigationService - navigate] navigate() 완료"));
+                .thenRun(() -> log.info("[NavigationService - navigate()] navigate() 완료"));
     }
 
     // ADD_WAYPOINT
@@ -37,7 +37,7 @@ public class NavigationService {
         cancelInternalAsync()
                 .thenRun(() -> command.addWaypoint(waypoints))
                 .thenCompose(v -> startExecutionAsync())
-                .thenRun(() -> log.info("[NavigationService - addWaypoint] addWaypoint() 완료"));
+                .thenRun(() -> log.info("[NavigationService - addWaypoint()] addWaypoint() 완료"));
 
     }
 
@@ -46,7 +46,7 @@ public class NavigationService {
         cancelInternalAsync()
                 .thenRun(() -> {
                     command.clear();
-                    log.info("[NavigationService - cancel] cancel() 완료");
+                    log.info("[NavigationService - cancel()] cancel() 완료");
                 });
     }
 
@@ -58,14 +58,14 @@ public class NavigationService {
         currentTask = executor.execute(command.getRoute());
 
         return currentTask
-                .thenRun(() -> {log.info("[Nav - NavigationService] Navigation 전송 완료");})
+                .thenRun(() -> {log.info("[NavigationService - startExecutionAsync()] Navigation 전송 완료");})
                 .exceptionally(e -> {
                     Throwable cause = (e instanceof CompletionException) ? e.getCause() : e;
 
                     if (cause instanceof CancellationException) {
-                        log.info("[NavigationService - startExecutionAsync] Navigation 취소");
+                        log.info("[NavigationService - startExecutionAsync()] Navigation 취소");
                     } else {
-                        log.warn("[NavigationService - startExecutionAsync] Navigation 요청 중 예외 발생: {}", e.getMessage());
+                        log.warn("[NavigationService - startExecutionAsync()] Navigation 요청 중 예외 발생: {}", e.getMessage());
                     }
                     return null;
                 });
@@ -92,7 +92,7 @@ public class NavigationService {
                     taskScheduler.schedule(() -> {
                         rosService.sendStop();
 
-                        log.info("[NavigationService - cancelInternalAsync] cancelInternalAsync 완료");
+                        log.info("[NavigationService - cancelInternalAsync()] cancelInternalAsync 완료");
 
                         future.complete(null);
                     }, java.time.Instant.now().plusMillis(delay));

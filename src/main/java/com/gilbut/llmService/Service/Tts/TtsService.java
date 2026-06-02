@@ -53,21 +53,21 @@ public class TtsService {
         client.setOnOpen(() -> {
             connected.set(true);
             reconnectAttempts.set(0);
-            log.info("[TTS - TtsService] 연결 성공: {}", rosProperties.getUri());
+            log.info("[TtsService - init()] 연결 성공: {}", rosProperties.getUri());
         });
         client.setOnClose(code -> {
             connected.set(false);
 
             if (code == 1000) {
-                log.info("[TTS - TtsService] 연결 종료");
+                log.info("[TtsService - init()] 연결 종료");
                 return;
             }
 
-            log.warn("[TTS - TtsService] 비정상 종료 (Code: {}). 재연결 시도...", code);
+            log.warn("[TtsService - init()] 비정상 종료 (Code: {}). 재연결 시도...", code);
             tryReconnectionAsync();
         });
         client.setOnError(ex -> {
-            log.error("[TTS - TtsService] 연결 오류 발생", ex);
+            log.error("[TtsService - init()] 연결 오류 발생", ex);
             connected.set(false);
         });
 
@@ -75,7 +75,7 @@ public class TtsService {
             // ROS 블로킹 연결
             this.client.connect();
         } catch (Exception e) {
-            log.error("[TTS - TtsService] 초기 연결 실패... 재시도...", e);
+            log.error("[TtsService - init()] 초기 연결 실패... 재시도...", e);
             tryReconnectionAsync();
         }
     }
@@ -85,18 +85,18 @@ public class TtsService {
             return;
 
         if (!connected.get()) {
-            log.warn("[TTS - TtsService] 연결 없음. 메시지 폐기");
+            log.warn("[TtsService - send()] 연결 없음. 메시지 폐기");
             return;
         }
 
         try {
             String ttsJson = objectMapper.writeValueAsString(dto);
             client.send(ttsJson);
-            log.info("[TTS - TtsService] 메시지 전송: {}", ttsJson);
+            log.info("[TtsService - send()] 메시지 전송: {}", ttsJson);
         } catch (JacksonException e) {
-            log.error("[TTS - TtsService] 메시지 전송 실패 >> Json 변환 실패", e);
+            log.error("[TtsService - send()] 메시지 전송 실패 >> Json 변환 실패", e);
         } catch (Exception e) {
-            log.error("[TTS - TtsService] 메시지 전송 실패 >> 전송 오류", e);
+            log.error("[TtsService - send()] 메시지 전송 실패 >> 전송 오류", e);
         }
     }
 
@@ -115,7 +115,7 @@ public class TtsService {
                 MAX_RECONNECT_DELAY_MS
         );
 
-        log.warn("[TTS - TtsService] TTS 재연결 {}ms 후 {}회 시도", delay, attempt);
+        log.warn("[TtsService - tryReconnection()] TTS 재연결 {}ms 후 {}회 시도", delay, attempt);
 
         try {
             Thread.sleep(delay);
@@ -123,7 +123,7 @@ public class TtsService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("[TTS - TtsService] 연결 재시도 실패", e);
+            log.error("[TtsService - tryReconnection()] 연결 재시도 실패", e);
         } finally {
             reconnecting.set(false);
         }

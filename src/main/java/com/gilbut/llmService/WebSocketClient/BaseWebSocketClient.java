@@ -25,6 +25,7 @@ public abstract class BaseWebSocketClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
+        log.info("[BaseWebSocketClient] onOpen 호출");
         onOpenCallback.run();
     }
 
