@@ -129,12 +129,12 @@ public class HintService {
 
     private boolean isSimilar(String keyword, String hintKeyword) {
         int dist = levenshteinDistance.apply(keyword, hintKeyword);
-        double similarity = (double) dist / Math.max(keyword.length(), hintKeyword.length());
+        double normalizedDistance = (double) dist / Math.max(keyword.length(), hintKeyword.length());
 
         // 단어가 짧은 경우.
         if (keyword.length() < 2 || hintKeyword.length() < 2)
-            return similarity < 0.5;
+            return normalizedDistance < 0.5;
 
-        return similarity < 0.3;
+        return normalizedDistance < 0.3;
     }
 }
