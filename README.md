@@ -23,6 +23,7 @@
 - [길벗(Gilbut) 최종 보고서](https://github.com/user-attachments/files/28992776/SW-1.-8.-.pdf)
   <br><br><br>
 
-### 다른 파트의 리포지토리
+### 각 파트의 원본 리포지토리
+- [LLM](https://github.com/PlatinaAce/Gilbut_LLM)
 - [Autonomous Driving](https://github.com/PlatinaAce/Gilbut_AutonomousDriving)
 - [TTS/STT](https://github.com/PlatinaAce/Gilbut_STT)
